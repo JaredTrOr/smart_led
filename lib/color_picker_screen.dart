@@ -1,8 +1,14 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_circle_color_picker/flutter_circle_color_picker.dart';
 
 class ColorPickerScreen extends StatefulWidget {
-  const ColorPickerScreen({super.key});
+  final BluetoothDevice? selectedDevice;
+  final BluetoothConnection? connection;
+  const ColorPickerScreen({super.key, required this.selectedDevice, required this.connection});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -10,8 +16,6 @@ class ColorPickerScreen extends StatefulWidget {
 }
 
 class _ColorPickerScreenState extends State<ColorPickerScreen> {
-  // FlutterBlue flutterBlue = FlutterBlue.instance;
-  // BluetoothDevice? selectedDevice;
 
   final _controller = CircleColorPickerController(
     initialColor: Colors.blue,
@@ -21,21 +25,20 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
   double redValue = 0.0;
   double greenValue = 0.0;
   double blueValue = 255.0;
+  bool _isSwitched = true;
 
-  void connectToDevice() {
-    // Implementa la lógica de conexión Bluetooth aquí
-    // Escanea los dispositivos disponibles y conecta al deseado
-    // Configura las características para la comunicación
+  void disconnectDevice() {
+    widget.connection?.finish();
+    Navigator.pop(context);
   }
 
-  void sendColorToArduino(Color color) {
-    // Convierte el color a valores RGB
-    // int red = color.red;
-    // int green = color.green;
-    // int blue = color.blue;
+  void sendColorToArduino(Color color) async {
+    int red = color.red;
+    int green = color.green;
+    int blue = color.blue;
 
-    // Envía los valores RGB al Arduino mediante Bluetooth
-    // Implementa tu protocolo de comunicación específico
+    String data = '$red,$green,$blue\n';
+    widget.connection?.output.add(Uint8List.fromList(utf8.encode(data)));
   }
 
   void updateSelectedColor() {
@@ -46,14 +49,25 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Color Picker'),
-      ),
+      backgroundColor: _isSwitched ? Colors.white : Colors.black,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleColorPicker(
+            SizedBox(height: 20),
+            Text('Conectado a dispositivo: ${widget.selectedDevice?.name ?? 'Ninguno'}', style: TextStyle(fontSize: 15, color: _isSwitched ? Colors.black : Colors.white)),
+            SizedBox(height: 20),
+            _isSwitched  ? const Text('ENCENDIDO',style: TextStyle(fontSize: 24,))
+            : const Text('APAGADO',style: TextStyle(fontSize: 24, color: Colors.white)),
+            Switch(
+              value: _isSwitched,
+              onChanged: (value) {
+                setState(() {
+                  _isSwitched = value;
+                });
+              },
+            ),
+            _isSwitched ? CircleColorPicker(
               controller: _controller,
               onChanged: (color) {
                 setState(() {
@@ -63,9 +77,9 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
                   blueValue = color.blue.toDouble();
                 });
               },
-            ),
+            ): Container(),
             const SizedBox(height: 20),
-            Column(
+            _isSwitched ? Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ColorSlider(
@@ -99,15 +113,21 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
                   },
                 ),
               ],
-            ),
+            ) : Container(),
             const SizedBox(height: 20),
-            ElevatedButton(
+            _isSwitched ? ElevatedButton(
               onPressed: () {
-                connectToDevice(); // Conecta al Arduino
+                // connectToDevice(); // Conecta al Arduino
                 sendColorToArduino(selectedColor); // Envía el color seleccionado
               },
               child: const Text('Enviar color al Arduino'),
-            ),
+            ): Container(),
+
+            ElevatedButton(
+              onPressed: () {
+                disconnectDevice();
+              },
+              child: const Text('Desconectar dispositivo')),
           ],
         ),
       ),
