@@ -1,16 +1,7 @@
-# colortest
+# Aplicación Blutooth Flutter LED RGB
 
-A new Flutter project.
+Aplicación de flutter que se conecta por medio de blutooth a un arduino para poder encender, apagar y cambiar el color a un led RGB
+![image](https://github.com/JaredTrOr/smart_led/assets/115369767/559de2f0-7ef8-42fe-97d9-c903f678ac85)
+![image](https://github.com/JaredTrOr/smart_led/assets/115369767/8b748997-db31-4b24-bcb9-2a1b1b0cdde2)
+![image](https://github.com/JaredTrOr/smart_led/assets/115369767/2d6d6c03-df2d-4555-be28-c305ae53cd66)
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
