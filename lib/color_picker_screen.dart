@@ -25,7 +25,7 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
   double redValue = 0.0;
   double greenValue = 0.0;
   double blueValue = 255.0;
-  bool _isSwitched = true;
+  bool _isSwitched = false;
 
   void disconnectDevice() {
     widget.connection?.finish();
@@ -37,7 +37,11 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
     int green = color.green;
     int blue = color.blue;
 
-    String data = '$red,$green,$blue\n';
+    String data = '$red,$green,$blue';
+    widget.connection?.output.add(Uint8List.fromList(utf8.encode(data)));
+  }
+
+  void sendOffOn(String data) async {
     widget.connection?.output.add(Uint8List.fromList(utf8.encode(data)));
   }
 
@@ -62,6 +66,7 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
             Switch(
               value: _isSwitched,
               onChanged: (value) {
+                sendOffOn(value ? '1' : '0');
                 setState(() {
                   _isSwitched = value;
                 });
@@ -125,6 +130,7 @@ class _ColorPickerScreenState extends State<ColorPickerScreen> {
 
             ElevatedButton(
               onPressed: () {
+                sendOffOn("0");
                 disconnectDevice();
               },
               child: const Text('Desconectar dispositivo')),

@@ -44,12 +44,15 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
 
   void checkPermissions() async {
     Map<Permission, PermissionStatus> statuses = await [
+      Permission.bluetoothScan,
       Permission.bluetooth,
       Permission.bluetoothConnect,
       Permission.location,
     ].request();
 
-    if (statuses[Permission.bluetooth]?.isGranted == true &&
+    if (  
+        statuses[Permission.bluetoothScan]?.isGranted == true &&
+        statuses[Permission.bluetooth]?.isGranted == true &&
         statuses[Permission.bluetoothConnect]?.isGranted == true &&
         statuses[Permission.location]?.isGranted == true) {
       getBondedDevices();
@@ -64,7 +67,9 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
   }
 
   void connectToDevice(BluetoothDevice device) async {
-    connection = await BluetoothConnection.toAddress(device.address);
+
+    try {
+      connection = await BluetoothConnection.toAddress(device.address);
     setState(() {
       connectedDevice = device;
       Navigator.push(
@@ -72,6 +77,9 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
         MaterialPageRoute(builder: (context) => ColorPickerScreen(selectedDevice: connectedDevice, connection: connection,)),
       );
     });
+    } catch(e) {
+      print(e);
+    }
   }
 
   @override
@@ -91,6 +99,7 @@ class _BluetoothScreenState extends State<BluetoothScreen> {
                       onTap: () {
                         connectToDevice(device);
                       },
+                      trailing: Text('Conectar'),
                     )),
               ],
             )
